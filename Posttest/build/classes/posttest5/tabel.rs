@@ -1,0 +1,13 @@
+modul6.tabel$12
+modul6.tabel$11
+modul6.tabel$10
+modul6.tabel$8
+modul6.tabel$7
+modul6.tabel
+modul6.tabel$6
+modul6.tabel$5
+modul6.tabel$4
+modul6.tabel$3
+modul6.tabel$2
+modul6.tabel$1
+modul6.tabel$9
