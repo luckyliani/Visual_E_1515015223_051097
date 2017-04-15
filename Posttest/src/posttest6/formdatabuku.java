@@ -26,6 +26,7 @@ private ResultSet rss;
     }
 private void InitTable(){
     model = new DefaultTableModel();
+    model.addColumn("ID BUKU");
     model.addColumn("JUDUL");
     model.addColumn("PENULIS");
     model.addColumn("HARGA");
@@ -38,10 +39,11 @@ private void TampilData(){
         stt = con.createStatement();
         rss = stt.executeQuery(sql);
         while (rss.next()){
-            Object[] o = new Object[3];
-            o[0] = rss.getString("judul");
-            o[1] = rss.getString("penulis");
-            o[2] = rss.getInt("harga");
+            Object[] o = new Object[4];
+            o[0] = rss.getString("id");
+            o[1] = rss.getString("judul");
+            o[2] = rss.getString("penulis");
+            o[3] = rss.getInt("harga");
             model.addRow(o);
         }
     }catch(SQLException e){
@@ -58,6 +60,46 @@ private void TambahData(String judul, String penulis, String harga){
     }
     catch(SQLException e){
         System.out.println(e.getMessage());
+    }
+}
+
+public boolean UbahData(String id, String judul, String Penulis, String harga){
+    try{
+        String sql = "UPDATE buku set judul='"+judul+"',Penulis='"+Penulis+"', harga="+harga+" WHERE id="+id+";";
+        stt = con.createStatement();
+        stt.executeUpdate(sql);
+        return true;
+                
+    }catch(SQLException e){
+        System.out.println(e.getMessage());
+        return false;
+    }}
+
+private boolean ValidasiData(String judul, String penulis){
+    try{
+        stt = con.createStatement();
+        String sql = "SELECT * FROM buku WHERE judul ='"+judul+"' and penulis='"+penulis+"'";
+        rss = stt.executeQuery(sql);
+        
+        if(rss.next()){
+            return true;
+        } else
+            return false;
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        return false;
+    }
+}
+    
+public boolean HapusData(String id){
+    try{
+        String sql = "DELETE FROM buku WHERE id="+id+";";
+        stt = con.createStatement();
+        stt.executeUpdate(sql);
+        return true;
+    }catch (SQLException e){
+     System.out.println(e.getMessage());
+     return false;
     }
 }
 
@@ -109,6 +151,11 @@ private void TambahData(String judul, String penulis, String harga){
         jScrollPane1.setViewportView(jTable1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
+            }
+        });
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 formComponentShown(evt);
@@ -126,6 +173,11 @@ private void TambahData(String judul, String penulis, String harga){
                 "JUDUL", "PENULIS", "HARGA"
             }
         ));
+        jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable2MouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(jTable2);
 
         simpan.setText("Simpan");
@@ -294,7 +346,7 @@ private void TambahData(String judul, String penulis, String harga){
                                 .addGap(18, 18, 18)
                                 .addComponent(combox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 15, Short.MAX_VALUE))))
+                        .addGap(0, 16, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -345,13 +397,26 @@ private void TambahData(String judul, String penulis, String harga){
         String judul = txtJudul.getText();
         String penulis = comboPenulis.getSelectedItem().toString();
         String harga = txtHarga.getText();
+        if(ValidasiData(judul,penulis)){
+            JOptionPane.showMessageDialog(this, "datanya ada bro");
+        } else{
         TambahData(judul,penulis,harga);
         InitTable();
         TampilData();
+        }
     }//GEN-LAST:event_simpanActionPerformed
 
     private void ubahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ubahActionPerformed
-        // TODO add your handling code here:
+                int baris = jTable2.getSelectedRow();
+                String id = jTable2.getValueAt(baris, 0).toString();
+                String Judul = txtJudul.getText();
+                String Penulis = comboPenulis.getSelectedItem().toString();
+                String Harga = txtHarga.getText();
+                if(UbahData(id, Judul, Penulis, Harga))
+                JOptionPane.showMessageDialog(null, "Berhasil Ubah Data");
+                else
+                JOptionPane.showConfirmDialog(null, "Gagal Ubah Data");
+                InitTable();TampilData();
     }//GEN-LAST:event_ubahActionPerformed
 
     private void caridataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_caridataActionPerformed
@@ -368,7 +433,13 @@ private void TambahData(String judul, String penulis, String harga){
     }//GEN-LAST:event_keluarActionPerformed
 
     private void hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusActionPerformed
-        // TODO add your handling code here:
+                int baris = jTable2.getSelectedRow();
+                String id = jTable2.getValueAt(baris, 0).toString();
+                if(HapusData(id))
+                    JOptionPane.showMessageDialog(null, "Berhasil hapus Data");
+                else
+                    JOptionPane.showConfirmDialog(null, "Gagal Hapus Data");
+                InitTable();TampilData();
     }//GEN-LAST:event_hapusActionPerformed
 
     private void cariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariActionPerformed
@@ -424,6 +495,18 @@ private void TambahData(String judul, String penulis, String harga){
             }
         }
     }//GEN-LAST:event_cariActionPerformed
+
+    private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formMouseClicked
+
+    private void jTable2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable2MouseClicked
+                int baris = jTable2.getSelectedRow();
+                
+                txtJudul.setText(jTable2.getValueAt(baris, 1).toString());
+                comboPenulis.setSelectedItem(jTable2.getValueAt(baris, 2).toString());
+                txtHarga.setText(jTable2.getValueAt(baris, 3).toString());
+    }//GEN-LAST:event_jTable2MouseClicked
 
     /**
      * @param args the command line arguments
@@ -483,4 +566,8 @@ private void TambahData(String judul, String penulis, String harga){
     private javax.swing.JTextField txtJudul;
     private javax.swing.JToggleButton ubah;
     // End of variables declaration//GEN-END:variables
+
+    private String o(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
